@@ -1,1 +1,1 @@
-# ChatBox-App-with-MERN-Stack
+# Real-Time Chat App with MERN Stack
