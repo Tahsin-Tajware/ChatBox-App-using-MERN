@@ -23,7 +23,7 @@ const Sidebar = ({ onSelectUser }) => {
     const [showLogoutDropdown, setShowLogoutDropdown] = useState(false);
     const dropdownRef = useRef(null);
 
-    const talkedWith = chatUser.map((user) => user._id);
+    const talkedWith = chatUser.map((user) => user?._id);
     const isOnline = talkedWith.map(userId => onlineUser.includes(userId));
 
     useEffect(() => {
@@ -45,7 +45,7 @@ const Sidebar = ({ onSelectUser }) => {
             try {
                 const chatters = await axios.get(`/api/user/currentchatters`);
                 const data = chatters.data;
-                if (data.success === false) {
+                if (!data.success) {
                     setLoading(false);
                     console.log(data.message);
                 }
@@ -61,15 +61,15 @@ const Sidebar = ({ onSelectUser }) => {
 
     const handleSearchSubmit = async (e) => {
         e.preventDefault();
-            if (searchInput.trim() === '') {
-                setSearchUser([]);
-                return;
-            }
+        if (searchInput.trim() === '') {
+            setSearchUser([]);
+            return;
+        }
         setLoading(true);
         try {
             const search = await axios.get(`/api/user/search?search=${searchInput}`);
             const data = search.data;
-            if (data.success === false) {
+            if (!data.success) {
                 setLoading(false);
                 console.log(data.message);
             }
@@ -87,7 +87,7 @@ const Sidebar = ({ onSelectUser }) => {
 
     const handleUserClick = (user) => {
         onSelectUser(user);
-        setSelectedUserId(user._id);
+        setSelectedUserId(user?._id);
         setSelectedConversation(user);
     };
 
@@ -108,11 +108,11 @@ const Sidebar = ({ onSelectUser }) => {
         try {
             const logout = await axios.post('/api/auth/logout');
             const data = logout.data;
-            if (data?.success === false) {
+            if (!data.success) {
                 setLoading(false);
-                console.log(data?.message);
+                console.log(data.message);
             }
-            toast.info(data?.message);
+            toast.info(data.message);
             localStorage.removeItem('chatapp');
             setAuthUser(null);
             setLoading(false);
@@ -167,21 +167,23 @@ const Sidebar = ({ onSelectUser }) => {
                     <div className="min-h-[70%] max-h-[80%] overflow-y-auto scrollbar">
                         <div className='w-auto'>
                             {searchUser.map((user, index) => (
-                                <div key={user._id}>
-                                    <div
-                                        onClick={() => handleUserClick(user)}
-                                        className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${selectedUserId === user?._id ? 'bg-sky-500' : ''}`}>
-                                        <div className={`avatar ${isOnline[index] ? 'online' : ''}`}>
-                                            <div className="w-12 rounded-full">
-                                                <img src={user.profilepic} alt='user.img' />
+                                user && (
+                                    <div key={user._id}>
+                                        <div
+                                            onClick={() => handleUserClick(user)}
+                                            className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${selectedUserId === user?._id ? 'bg-sky-500' : ''}`}>
+                                            <div className={`avatar ${isOnline[index] ? 'online' : ''}`}>
+                                                <div className="w-12 rounded-full">
+                                                    <img src={user?.profilepic} alt='user.img' />
+                                                </div>
+                                            </div>
+                                            <div className='flex flex-col flex-1'>
+                                                <p className='font-bold text-black dark:text-white'>{user?.username}</p>
                                             </div>
                                         </div>
-                                        <div className='flex flex-col flex-1'>
-                                            <p className='font-bold text-black dark:text-white'>{user.username}</p>
-                                        </div>
+                                        <div className='divider divide-solid px-3 h-[1px]'></div>
                                     </div>
-                                    <div className='divider divide-solid px-3 h-[1px]'></div>
-                                </div>
+                                )
                             ))}
                         </div>
                     </div>
@@ -202,28 +204,30 @@ const Sidebar = ({ onSelectUser }) => {
                                 </div>
                             ) : (
                                 chatUser.map((user, index) => (
-                                    <div key={user._id}>
-                                        <div
-                                            onClick={() => handleUserClick(user)}
-                                            className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${selectedUserId === user?._id ? 'bg-sky-500' : ''}`}>
-                                            <div className={`avatar ${isOnline[index] ? 'online' : ''}`}>
-                                                <div className="w-12 rounded-full">
-                                                    <img src={user.profilepic} alt='user.img' />
+                                    user && (
+                                        <div key={user._id}>
+                                            <div
+                                                onClick={() => handleUserClick(user)}
+                                                className={`flex gap-3 items-center rounded p-2 py-1 cursor-pointer ${selectedUserId === user?._id ? 'bg-sky-500' : ''}`}>
+                                                <div className={`avatar ${isOnline[index] ? 'online' : ''}`}>
+                                                    <div className="w-12 rounded-full">
+                                                        <img src={user?.profilepic} alt='user.img' />
+                                                    </div>
+                                                </div>
+                                                <div className='flex flex-col flex-1'>
+                                                    <p className='font-bold text-black dark:text-white'>{user?.username}</p>
+                                                </div>
+                                                <div>
+                                                    {selectedConversation === null &&
+                                                    newMessageUsers?.reciverId === authUser?._id &&
+                                                    newMessageUsers?.senderId === user?._id ? 
+                                                    <div className="rounded-full bg-green-700 text-sm text-white px-[4px]">+1</div> 
+                                                    : null}
                                                 </div>
                                             </div>
-                                            <div className='flex flex-col flex-1'>
-                                                <p className='font-bold text-black dark:text-white'>{user.username}</p>
-                                            </div>
-                                            <div>
-                                                {selectedConversation === null &&
-                                                newMessageUsers.reciverId === authUser._id &&
-                                                newMessageUsers.senderId === user._id ? 
-                                                <div className="rounded-full bg-green-700 text-sm text-white px-[4px]">+1</div> 
-                                                : null}
-                                            </div>
+                                            <div className='divider divide-solid px-3 h-[1px]'></div>
                                         </div>
-                                        <div className='divider divide-solid px-3 h-[1px]'></div>
-                                    </div>
+                                    )
                                 ))
                             )}
                         </div>
