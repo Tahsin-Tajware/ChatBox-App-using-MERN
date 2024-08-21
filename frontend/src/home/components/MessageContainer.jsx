@@ -133,7 +133,7 @@ const MessageContainer = ({ onBackUser }) => {
           </div>
 
           <form onSubmit={handleSubmit} className='rounded-full text-black'>
-            <div className='w-full rounded-full flex items-center bg-white'>
+           <div className='w-full rounded-full flex items-center bg-gray-400'>
               <input value={sendData} required onChange={(e) => setSendData(e.target.value)} id='message'
                 type='text ' className='w-full bg-transparent outline-none px-4 rounded-full' />
               <button type='submit' className="relative flex items-center justify-center">
